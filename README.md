@@ -124,7 +124,7 @@ Quien = emi ;
 Quien = pablito ;
 false.
 ``` 
-### Punto 8: `necesitaFifurita/2:`
+### Punto 8: `necesitaFigurita/2:`
 **Objetivo:**  
 Saber si una persona necesita una figurita, lo cual se cumple si le falta esa figurita y…
 - o bien ya consiguió todas las otras figuritas del álbum,
