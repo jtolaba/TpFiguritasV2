@@ -104,5 +104,68 @@ test(valor_de_interes_figuritas_obtenidas_por_pablito_en_canje_con_toto,nondet):
     valorCanje(pablito, toto, 45).
 :- end_tests(valorDeInteresante).
 
+%-----------------------------------------------------------------------------
+%   Cambio, cambio…
+%-----------------------------------------------------------------------------
+
+%--------hizoNegocio
+:- begin_tests(hizoNegocio).
+
+test(pablito_hizo_negocio_con_lala,true,nondet):-
+    hizoNegocio(pablito,lala).
+
+test(toto_hizo_negocio_con_pablito,fail):-
+% Ambos intercambiaron figuritasValiosas
+    hizoNegocio(toto,pablito).
+
+test(hizo_negocio_inexistente,fail):-
+    hizoNegocio(jorge,pablito).
+
+:- end_tests(hizoNegocio).
+
+
+%--------esUnaAmaneza
+:- begin_tests(esUnaAmenaza).
+
+test(quien_es_una_amenaza,nondet):-
+    esUnaAmenaza(emi),
+    esUnaAmenaza(pablito). 
+
+test(lala_no_es_una_amenza,fail):-
+    esUnaAmenaza(lala).
+    
+:- end_tests(esUnaAmenaza).
+
+%--------necesitaFigurita
+:- begin_tests(necesitaFigurita).
+
+test(figuritas_que_necesita_andy):-
+    necesitaFigurita(andy,3).
+
+test(figuritas_que_necesita_lala):-
+    necesitaFigurita(lala,6)
+    
+:- end_tests(necesitaFigurita).
+
+%--------posiblesCanjes
+:- begin_tests(posiblesCanjes).
+
+test(andy_entregaria_en_canje_solo_figurita_repetida,nondet):-
+    figuritaRepetida(andy, Figurita),
+    posiblesCanjes(andy,_,FiguritasQueEntregaria,_),
+    member(Figurita,FiguritasQueEntregaria).
+
+test(andy_entregaria_en_canje_figurita_no_repetida, fail, nondet) :-
+    posiblesCanjes(andy, _, FiguritasQueEntregaria, _),
+    member(F, FiguritasQueEntregaria),
+    \+ figuritaRepetida(andy, F).
+
+
+test(andy_solo_busca_figuritas_que_necesita,nondet):-
+    necesitaFigurita(andy,Figurita),
+    posiblesCanjes(andy,Figurita,_,_).
+    
+:- end_tests(posiblesCanjes).
+
 % Dejar esto al final del archivo para que se ejecuten automáticamente al cargarlo mediante SWI Prolog.
 :- run_tests.

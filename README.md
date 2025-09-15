@@ -105,3 +105,56 @@ Valor = 43 .
 ?- valorCanje(pablito,toto,Valor).
 Valor = 45 .
 ``` 
+### Punto 7: `hizoNegocio/2:` y `esUnaAmenaza/1:`
+**Objetivo:**  
+`hizoNegocio/2:` si a partir de dicho canje consigue alguna figurita valiosa, y todas las figuritas que le dio a la otra persona en ese canje no son valiosas.
+
+`esUnaAmenaza/1:`será cierto si dado su conjunto de canjes hace negocio con alguno de ellos y además en todos estos canjes sale ganando, porque fue más interesante lo que obtuvo que lo que dio a cambio.
+
+
+```prolog
+%hizoNegocio(Ganador,Perdedor). 
+%Ganador obtuvo cartas mejor valoradas en el intercambio.
+?- hizoNegocio(pablito,lala).
+true .
+
+?- esUnaAmenaza(Quien).
+Quien = emi ;
+Quien = emi ;
+Quien = pablito ;
+false.
+``` 
+### Punto 8: `necesitaFifurita/2:`
+**Objetivo:**  
+Saber si una persona necesita una figurita, lo cual se cumple si le falta esa figurita y…
+- o bien ya consiguió todas las otras figuritas del álbum,
+- o bien forma parte de un mismo rompecabezas de otra figurita que sí consiguió.
+
+
+
+```prolog
+% Tiene el resto de las figuritas del album
+?- necesitaFigurita(andy,F).
+F = 3 ;
+% Necesita la 6 ara completar rompecabeza.
+?- necesitaFigurita(flor,F).
+F = 6 .
+``` 
+### Punto 9: `necesitaFifurita/2:`
+**Objetivo:**  
+Encontrar los posibles canjes que podría hacer una persona con otras para conseguir alguna figurita que necesita, dando a cambio al menos una figurita que tenga repetida teniendo en cuenta que la otra persona estaría dispuesta a hacer el canje si se cumple alguna de estas 
+
+**Condiciones**:
+- No tiene ninguna de las figuritas que recibiría
+- Sólo estaría entregando figuritas repetidas
+- Alguna de las figuritas que recibiría es valiosa
+- Recibiría al menos una figurita que necesita
+
+```prolog
+?- posiblesCanjes(Coleccionista,FiguritaBuscada,FiguritasQueEntregaria,Interesado).
+Coleccionista = andy,
+FiguritaBuscada = 3,
+FiguritasQueEntregaria = [1],
+Interesado = emi .
+
+``` 
