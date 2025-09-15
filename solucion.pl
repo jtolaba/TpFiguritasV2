@@ -37,8 +37,8 @@ obtuvoEn(paquete, emi, 1, 10).
 obtuvoEn(paquete, emi, 2, 9).
 obtuvoEn(paquete, emi, 2, 10).
 % obtuvoEn(paquete,emi,2,8). %agregado para prueba.
-obtuvoEn(canje, pablito, 6, toto).
-obtuvoEn(canje, toto, 2, pablito).
+obtuvoEn(canje, pablito, 2, toto).
+obtuvoEn(canje, toto, 6, pablito).
 obtuvoEn(canje, pablito, 1, lala).
 obtuvoEn(canje, lala, 5, pablito).
 obtuvoEn(canje, emi, 3, lala).
@@ -64,8 +64,8 @@ figuritasObtenidas(Persona, Figurita):-
 figuritasObtenidas(Persona, Figurita):-
 	obtuvoEn(canje, Persona, Figurita, _).
 
-figuritasObtenidas(Persona, Figurita):-
-	obtuvoEn(canje, _, Figurita, Persona).
+% figuritasObtenidas(Persona, Figurita):-
+% 	obtuvoEn(canje, _, Figurita, Persona).
 
 
 %-----------------------------------------------------------------------------
@@ -131,7 +131,6 @@ figurita(10, basica(escenario)).
 figurita(Figurita):-
     figurita(Figurita,_).
 
-
 figuritaBrillante(Figurita):-
     figurita(Figurita, brillante(_)).
 
@@ -165,9 +164,7 @@ nivelDeAtractivo(Figurita, Atractivo):-
     sumlist(Popularidades, Atractivo).
 
 nivelDeAtractivo(Figurita, 2):-
-	figurita(Figurita,
-		rompecabezas(Tipo)),
-	cantidadDePiezasRompecabezas(Tipo, Cantidad),
+	figurita(Figurita, rompecabezas(Tipo)),	cantidadDePiezasRompecabezas(Tipo, Cantidad),
 	Cantidad =< 2.
 
 nivelDeAtractivo(Figurita, 0):-
@@ -178,5 +175,33 @@ cantidadDePiezasRompecabezas(Tipo, Cantidad):-
 	findall(Figurita, figuritaDeRompecabezas(Tipo, Figurita), Figuritas),
 	length(Figuritas, Cantidad).
     
-    
+%-----------------------------------------------------------------------------
+%   Punto 6 : valorPaquete/3 y valorCanje/3
+%-----------------------------------------------------------------------------
+valorPaquete(Persona,Paquete,Puntaje):-
+	coleccionista(Persona),
+	findall(Figurita,obtuvoEn(paquete,Persona,Paquete,Figurita), FiguritasObtenidasEnPaquete),
+	valorDeInteresante(FiguritasObtenidasEnPaquete,Puntaje).
+
+valorCanje(ColeccionistaA, ColeccionistaB, Puntaje):-
+	coleccionista(ColeccionistaA),
+	coleccionista(ColeccionistaB),
+	ColeccionistaA \= ColeccionistaB,
+	findall(Figurita,obtuvoEn(canje,ColeccionistaA,Figurita,ColeccionistaB), FiguritasObtenidasEnCanje),
+	valorDeInteresante(FiguritasObtenidasEnCanje,Puntaje).
+
+
+valorDeInteresante(Figuritas,Puntaje):-
+	maplist(nivelDeAtractivo, Figuritas, NivelDeAtractivoCartas),
+	sumlist(NivelDeAtractivoCartas, PuntajeParcial),
+	obtuvoFiguritaRara(Figuritas,PuntajeParcial,Puntaje).
+
+obtuvoFiguritaRara(Figuritas,PuntajeParcial,Puntaje):-
+	include(figuritaRara, Figuritas, FiguritasRara),
+	length(FiguritasRara, CantidadRaras),
+	Puntaje is PuntajeParcial + (CantidadRaras * 20).
+
+%-----------------------------------------------------------------------------
+%   Punto 6 : valorPaquete/1
+%-----------------------------------------------------------------------------
 %shell(clear).

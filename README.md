@@ -18,7 +18,8 @@ Una persona tiene una figurita si fue **recibida en un canje** o **sacada de un 
 **Uso esperado:**
 
 ```prolog
-?- figuritasObtenidas(bobby,F).
+% figuritasObtenidas(Coleccionista,Figurita).
+?- figuritasObtenidas(bobby,Figurita).
 F = 3 ;
 F = 5 ;
 F = 7 ;
@@ -37,6 +38,7 @@ Determinar qué figuritas tiene repetida una persona.
 **Uso esperado:**
 
 ```prolog
+% figuritaRepetida(Persona,FiguritaRepetida).
 ?- figuritaRepetida(andy,Figurita).
 Figurita = 1 ;
 Figurita = 4 ;
@@ -69,6 +71,7 @@ Incorporar a la base de conocimientos la siguiente información sobre la imagen 
 - Hay 3 figuritas que conforman un rompecabezas de un restaurante: son la 5, la 6 y la 7.
 - La 8 es una figurita básica que incluye a todos los personajes de la franquicia.
 - Las figuritas 9 y 10 son básicas y sin personajes (tienen escenarios).
+
 ### Punto 5: `figuritaValiosa/1:`
 **Objetivo:**  
 Determinar si una figurita es Valiosa.
@@ -79,9 +82,26 @@ Determinar si una figurita es Valiosa.
     - Si se trata de una **figurita brillante**, su atractivo es 5 multiplicado por la popularidad del personaje de la imagen.
     - Si se trata de una **figurita básica** es la suma de la popularidad de cada personaje que aparezca.
 ```prolog
+% figuritaRara(NumeroFigurita).
 ?- figuritaRara(Figurita).
 Figurita = 8 ;
 Figurita = 2 ;
 Figurita = 8 ;
 false.
+``` 
+### Punto 6: `valorPaquete/3:` y `valorCanje/3:`
+**Objetivo:**  
+Dado un paquete abierto o un canje realizado por una persona, saber qué tan interesante fue lo que obtuvo, que se calcula como la sumatoria del atractivo de las imágenes de las figuritas que consiguió por ese medio.
+
+**Nota:**
+- Más un plus de 20 puntos si allí consiguió alguna figurita rara. 
+```prolog
+%valorPaquete(Persona,NúmeroPaquete,Valor).
+valorPaquete(lala,1,Valor).
+Valor = 43 .
+``` 
+```prolog
+%valorCanje(PersonaA,PersonaB, Valor).
+?- valorCanje(pablito,toto,Valor).
+Valor = 45 .
 ``` 
