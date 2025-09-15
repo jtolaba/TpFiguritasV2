@@ -140,7 +140,7 @@ F = 3 ;
 ?- necesitaFigurita(flor,F).
 F = 6 .
 ``` 
-### Punto 9: `necesitaFifurita/2:`
+### Punto 9: `posiblesCanjes/4:`
 **Objetivo:**  
 Encontrar los posibles canjes que podría hacer una persona con otras para conseguir alguna figurita que necesita, dando a cambio al menos una figurita que tenga repetida teniendo en cuenta que la otra persona estaría dispuesta a hacer el canje si se cumple alguna de estas 
 
