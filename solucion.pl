@@ -48,24 +48,23 @@ obtuvoEn(canje, andy, [1], flor, [4,7]).
 %   Punto 1 : figuritasObtenidas/2
 %-----------------------------------------------------------------------------
 
-figuritasObtenidas(Persona, Figurita):-
-	coleccionista(Persona),
-	obtuvoEn(paquete, Persona, _, Figurita).
+figuritasObtenidas(Coleccionista, Figurita):-
+	coleccionista(Coleccionista),
+	obtuvoEn(paquete, Coleccionista, _, Figurita).
 
-figuritasObtenidas(Persona, Figurita):-
-	coleccionista(Persona),
-	(findall(F,obtuvoEn(canje,Persona,F,_,_),Figuritas);
-	findall(F,obtuvoEn(canje,_,_,Persona,F),Figuritas)),
-	flatten(Figuritas, FiguritasRecibidas),
+figuritasObtenidas(Coleccionista, Figurita):-
+	coleccionista(Coleccionista),
+	figuritasObtenidasPorCanje(Coleccionista,FiguritasRecibidas),
 	member(Figurita, FiguritasRecibidas).
 
 %-----------------------------------------------------------------------------
 %   Punto 2 : figuritaRepetida/2
 %-----------------------------------------------------------------------------
 
-figuritaRepetida(Persona, Figurita):-
-	coleccionista(Persona),
-	findall(F, figuritasObtenidas(Persona, F), Figuritas),
+figuritaRepetida(Coleccionista, Figurita):-
+	coleccionista(Coleccionista),
+	listaDeFiguritasSegun(figuritasObtenidas,Coleccionista,Figuritas),
+	% findall(F, figuritasObtenidas(Persona, F), Figuritas),
     include(duplicado(Figuritas), Figuritas, Repetidas), sort(Repetidas, Unicas),
 	member(Figurita, Unicas).
   
@@ -82,8 +81,7 @@ figuritaRara(Figurita):-
 	not(member(Figurita, Figuritas)).
 
 figuritaRara(Figurita) :-
-    (obtuvoEn(canje, _,FiguritasRecibidas, _, FiguritasDadas);
-	obtuvoEn(canje, _, FiguritasDadas, _, FiguritasRecibidas)),
+	canje(_,FiguritasRecibidas,_,FiguritasDadas),
     member(Figurita, FiguritasRecibidas),
     length(FiguritasDadas, CantidadRecibida),
 	CantidadRecibida >=3.	
@@ -158,15 +156,17 @@ nivelDeAtractivo(Figurita, Atractivo):-
     sumlist(Popularidades, Atractivo).
 
 nivelDeAtractivo(Figurita, 2):-
-	figurita(Figurita, rompecabezas(Tipo)),	cantidadDePiezasRompecabezas(Tipo, Cantidad),
+	figurita(Figurita, rompecabezas(Tipo)),	
+	cantidadDePiezasRompecabezas(Tipo, Cantidad),
 	Cantidad =< 2.
 
 nivelDeAtractivo(Figurita, 0):-
-	figurita(Figurita,rompecabezas(Tipo)), cantidadDePiezasRompecabezas(Tipo, Cantidad),
+	figurita(Figurita,rompecabezas(Tipo)), 
+	cantidadDePiezasRompecabezas(Tipo, Cantidad),
 	Cantidad > 2.
 
-cantidadDePiezasRompecabezas(Tipo, Cantidad):-
-	findall(Figurita, figuritaDeRompecabezas(Tipo, Figurita), Figuritas),
+cantidadDePiezasRompecabezas(ImagenRompecabeza, Cantidad):-
+	listaDeFiguritasSegun(figuritaDeRompecabezas,ImagenRompecabeza,Figuritas),
 	length(Figuritas, Cantidad).
     
 %-----------------------------------------------------------------------------
@@ -178,11 +178,8 @@ valorPaquete(Persona,Paquete,Puntaje):-
 	valorDeInteresante(FiguritasObtenidasEnPaquete,Puntaje).
 
 valorCanje(ColeccionistaA, ColeccionistaB, Puntaje):-
-	coleccionista(ColeccionistaA),
-	coleccionista(ColeccionistaB),
-	ColeccionistaA \= ColeccionistaB,
-	(obtuvoEn(canje,ColeccionistaA,FiguritasObtenidasEnCanje,ColeccionistaB,_);
-	obtuvoEn(canje,ColeccionistaB,_,ColeccionistaA,FiguritasObtenidasEnCanje)),
+	coleccionistasDistintos(ColeccionistaA,ColeccionistaB),
+	canje(ColeccionistaA,FiguritasObtenidasEnCanje,ColeccionistaB,_),
 	valorDeInteresante(FiguritasObtenidasEnCanje,Puntaje).
 
 
@@ -200,11 +197,8 @@ obtuvoFiguritaRara(Figuritas,PuntajeParcial,Puntaje):-
 %   Punto 7: hizoNegocio
 %-----------------------------------------------------------------------------
 hizoNegocio(Ganador,Perdedor):-
-	coleccionista(Ganador),
-	coleccionista(Perdedor),
-	Ganador \= Perdedor,
-	(obtuvoEn(canje,Ganador,ObtenidasPorGanador,Perdedor,ObtenidasPorPerdedor);
-	obtuvoEn(canje,Perdedor,ObtenidasPorPerdedor,Ganador,ObtenidasPorGanador)),
+	coleccionistasDistintos(Ganador,Perdedor),
+	canje(Ganador,ObtenidasPorGanador,Perdedor,ObtenidasPorPerdedor),
 	include(figuritaValiosa, ObtenidasPorGanador, ValiosasObtenidasPorGanador), ValiosasObtenidasPorGanador \= [],
 	forall(member(Figurita,ObtenidasPorPerdedor), \+ figuritaValiosa(Figurita)).
 	
@@ -241,43 +235,31 @@ necesitaFigurita(Coleccionista,Figurita):-
 
 necesitaFigurita(Coleccionista,Figurita):-
 	figurita(Figurita),
-	findall(FiguritaFaltante, figuritasFaltantes(Coleccionista, FiguritaFaltante), FiguritasFaltantes),
+	listaDeFiguritasSegun(figuritasFaltantes,Coleccionista,FiguritasFaltantes),
 	length(FiguritasFaltantes, 1),
 	member(Figurita,FiguritasFaltantes).
 
 tieneParteDelRompecabeza(Persona, Figurita) :-
-  figuritasFaltantes(Persona, Figurita),
-  figurita(Figurita, rompecabezas(Imagen)),
-  findall(FiguritaObtenida,figuritasObtenidas(Persona, FiguritaObtenida), Obtenidas),
-  member(Otra, Obtenidas),
-  figurita(Otra, rompecabezas(Imagen)),
-  Otra \= Figurita.	
+	figuritasFaltantes(Persona, Figurita),
+	figurita(Figurita, rompecabezas(Imagen)),
+	figuritaPerteneceALista(OtraFigurita,Persona,figuritasObtenidas),
+	figurita(OtraFigurita, rompecabezas(Imagen)),
+	OtraFigurita \= Figurita.	
 
 %-----------------------------------------------------------------------------
-%   Punto 9: hizoNegocio
+%   Punto 9: PosiblesCanjes
 %-----------------------------------------------------------------------------
 
 /* 
-posiblesCanjes2: El siguinte predicado asocia a: 
-      Coleccionista: Persona que tiene figuritas.
-      FiguritaBuscada: Figuritas que necesita ya sea para completar album o completar parte del rompecabeaz que tiene.
-      FiguritasQueEntregaria: Solo esta dispuesto a entregar figuritas que tiene repetidas.
-      Interesado: Persona que busca las figuritas repetidas por el Coleccionista y no las consiguio por ningun medio.
-    
 Ejecutar en consola: 
 posiblesCanjes(Coleccionista,FiguritaBuscada,FiguritasQueEntregaria,Interesado).
 */
 posiblesCanjes(Persona,FiguritaBuscada,FiguritasQueEntregaria,Interesado):-
-	coleccionista(Persona),
-	coleccionista(Interesado),
-	findall(Figurita,figuritasObtenidas(Interesado, Figurita),FiguritasDelInteresado), 
-	Persona \= Interesado,
-	findall(Figurita,necesitaFigurita(Persona,Figurita),FiguritasQueNecesita),
-	member(FiguritaBuscada,FiguritasQueNecesita),
-	member(FiguritaBuscada,FiguritasDelInteresado),
-	findall(Figurita,figuritaRepetida(Persona,Figurita),FiguritasQueEntregaria),
+	coleccionistasDistintos(Persona,Interesado),
+	figuritaPerteneceALista(FiguritaBuscada,Interesado,figuritasObtenidas),
+	figuritaPerteneceALista(FiguritaBuscada,Persona,necesitaFigurita),
+	figuritaPerteneceALista(FiguritaBuscadaPorInteresado,Persona,figuritaRepetida),
 	figuritasFaltantes(Interesado,FiguritaBuscadaPorInteresado),
-	member(FiguritaBuscadaPorInteresado,FiguritasQueEntregaria),
 	estaDispuestoAlCanje(Interesado,FiguritaBuscada,FiguritasQueEntregaria).
 
 % A) No tiene ninguna de las figuritas que recibiría
@@ -299,3 +281,27 @@ estaDispuestoAlCanje(Interesado,_,FiguritasARecibir):-
 	member(Figurita, FiguritasARecibir),
 	necesitaFigurita(Interesado,Figurita).
 %shell(clear).
+
+%-----------------------------------------------------------------------------
+%   Auxiliares
+%-----------------------------------------------------------------------------
+coleccionistasDistintos(ColeccionistaA,ColeccionistaB):-
+	coleccionista(ColeccionistaA),
+	coleccionista(ColeccionistaB),
+	ColeccionistaA \= ColeccionistaB.
+
+figuritasObtenidasPorCanje(Persona,FiguritasRecibidas):-
+	(findall(F,obtuvoEn(canje,Persona,F,_,_),Figuritas);
+	findall(F,obtuvoEn(canje,_,_,Persona,F),Figuritas)),
+	flatten(Figuritas, FiguritasRecibidas).
+
+canje(ColeccionistaA,FiguritasObtenidasPorA,ColeccionistaB,FiguritasObtenidaPorB):-
+	(obtuvoEn(canje,ColeccionistaA,FiguritasObtenidasPorA,ColeccionistaB,FiguritasObtenidaPorB);
+	obtuvoEn(canje,ColeccionistaB,FiguritasObtenidaPorB,ColeccionistaA,FiguritasObtenidasPorA)).
+
+listaDeFiguritasSegun(Criterio,Persona,Resultado):-
+	findall(F, call(Criterio,Persona,F), Resultado).
+
+figuritaPerteneceALista(Figurita,Persona,Criterio):-
+	listaDeFiguritasSegun(Criterio,Persona,Resultado),
+	member(Figurita,Resultado).

@@ -142,8 +142,8 @@ test(lala_no_es_una_amenza,fail):-
 test(figuritas_que_necesita_andy):-
     necesitaFigurita(andy,3).
 
-test(figuritas_que_necesita_lala):-
-    necesitaFigurita(lala,6)
+test(figuritas_que_necesita_lala,nondet):-
+    necesitaFigurita(lala,6).
     
 :- end_tests(necesitaFigurita).
 
